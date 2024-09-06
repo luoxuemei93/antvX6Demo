@@ -1,0 +1,254 @@
+{
+  "cells": [
+    {
+      "shape": "edge",
+      "attrs": {
+        "line": {
+          "stroke": "#A2B1C3",
+          "targetMarker": {
+            "name": "block",
+            "width": 12,
+            "height": 8
+          }
+        }
+      },
+      "id": "a2c2d922-6de0-44d3-a7cc-114ce1cfc2de",
+      "labels": [
+        {
+          "attrs": {
+            "label": {
+              "text": "123"
+            }
+          }
+        }
+      ],
+      "zIndex": 0,
+      "source": {
+        "cell": "28c5e253-dd1a-4f3b-ab41-50bbb7f2c6bb",
+        "port": "2de2e236-9a0e-4b17-a62f-54cef8f84f84"
+      },
+      "target": {
+        "cell": "4cb4dc21-5aac-4579-8433-27f7a8a7be12",
+        "port": "8c634247-f2ec-4582-bcde-aff3b99c65cb"
+      }
+    },
+    {
+      "position": {
+        "x": 380,
+        "y": 220.5
+      },
+      "size": {
+        "width": 66,
+        "height": 36
+      },
+      "attrs": {
+        "text": {
+          "text": "开始"
+        },
+        "body": {
+          "rx": 20,
+          "ry": 26
+        }
+      },
+      "visible": true,
+      "shape": "custom-rect",
+      "ports": {
+        "groups": {
+          "top": {
+            "position": "top",
+            "attrs": {
+              "circle": {
+                "r": 4,
+                "magnet": true,
+                "stroke": "#5F95FF",
+                "strokeWidth": 1,
+                "fill": "#fff",
+                "style": {
+                  "visibility": "hidden"
+                }
+              }
+            }
+          },
+          "right": {
+            "position": "right",
+            "attrs": {
+              "circle": {
+                "r": 4,
+                "magnet": true,
+                "stroke": "#5F95FF",
+                "strokeWidth": 1,
+                "fill": "#fff",
+                "style": {
+                  "visibility": "hidden"
+                }
+              }
+            }
+          },
+          "bottom": {
+            "position": "bottom",
+            "attrs": {
+              "circle": {
+                "r": 4,
+                "magnet": true,
+                "stroke": "#5F95FF",
+                "strokeWidth": 1,
+                "fill": "#fff",
+                "style": {
+                  "visibility": "hidden"
+                }
+              }
+            }
+          },
+          "left": {
+            "position": "left",
+            "attrs": {
+              "circle": {
+                "r": 4,
+                "magnet": true,
+                "stroke": "#5F95FF",
+                "strokeWidth": 1,
+                "fill": "#fff",
+                "style": {
+                  "visibility": "hidden"
+                }
+              }
+            }
+          }
+        },
+        "items": [
+          {
+            "group": "top",
+            "id": "d55a3bfc-5c78-4b3f-ae11-ee51a22cd93f"
+          },
+          {
+            "group": "right",
+            "id": "2de2e236-9a0e-4b17-a62f-54cef8f84f84"
+          },
+          {
+            "group": "bottom",
+            "id": "d6f447a8-9ca9-46fb-8153-4e1bcab22cce"
+          },
+          {
+            "group": "left",
+            "id": "5a860e15-d77f-409e-ab16-c032dce2c88e"
+          }
+        ]
+      },
+      "id": "28c5e253-dd1a-4f3b-ab41-50bbb7f2c6bb",
+      "name": "开始",
+      "shapeId": "001",
+      "allowOutNodeIds": [
+        "002",
+        "005"
+      ],
+      "allowOutNodeLinkLabel": {
+        "002": "指向002的id说明",
+        "005": "指向002的id说明"
+      },
+      "zIndex": 1
+    },
+    {
+      "position": {
+        "x": 651,
+        "y": 216
+      },
+      "size": {
+        "width": 45,
+        "height": 45
+      },
+      "attrs": {
+        "text": {
+          "text": "结束"
+        }
+      },
+      "visible": true,
+      "shape": "custom-circle",
+      "ports": {
+        "groups": {
+          "top": {
+            "position": "top",
+            "attrs": {
+              "circle": {
+                "r": 4,
+                "magnet": true,
+                "stroke": "#5F95FF",
+                "strokeWidth": 1,
+                "fill": "#fff",
+                "style": {
+                  "visibility": "hidden"
+                }
+              }
+            }
+          },
+          "right": {
+            "position": "right",
+            "attrs": {
+              "circle": {
+                "r": 4,
+                "magnet": true,
+                "stroke": "#5F95FF",
+                "strokeWidth": 1,
+                "fill": "#fff",
+                "style": {
+                  "visibility": "hidden"
+                }
+              }
+            }
+          },
+          "bottom": {
+            "position": "bottom",
+            "attrs": {
+              "circle": {
+                "r": 4,
+                "magnet": true,
+                "stroke": "#5F95FF",
+                "strokeWidth": 1,
+                "fill": "#fff",
+                "style": {
+                  "visibility": "hidden"
+                }
+              }
+            }
+          },
+          "left": {
+            "position": "left",
+            "attrs": {
+              "circle": {
+                "r": 4,
+                "magnet": true,
+                "stroke": "#5F95FF",
+                "strokeWidth": 1,
+                "fill": "#fff",
+                "style": {
+                  "visibility": "hidden"
+                }
+              }
+            }
+          }
+        },
+        "items": [
+          {
+            "group": "top",
+            "id": "7ae4f11b-6279-424d-a7ef-730d85711317"
+          },
+          {
+            "group": "right",
+            "id": "48e2d469-66c7-47bc-90be-c33fa20b8c4b"
+          },
+          {
+            "group": "bottom",
+            "id": "e633ae90-032e-4582-a7e3-518b53f07b92"
+          },
+          {
+            "group": "left",
+            "id": "8c634247-f2ec-4582-bcde-aff3b99c65cb"
+          }
+        ]
+      },
+      "id": "4cb4dc21-5aac-4579-8433-27f7a8a7be12",
+      "name": "结束",
+      "shapeId": "005",
+      "zIndex": 2
+    }
+  ]
+}

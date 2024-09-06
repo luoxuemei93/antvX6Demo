@@ -3,15 +3,20 @@ const letfShape = [
   {
     label: '开始',
     name: '开始', // 因为model的数据中，返回不了，label、id的值（与原属性冲突了）。因为多定义了一个，name，shapeId
-    shapeId: '001',
-    shape: 'custom-rect',
-    attrs: {
+    shapeId: '001', // 业务id
+    // 出仓指向，可以选择下面2种格式，具体根据后台，以及跟进是否需要展示线文字进行定义
+    allowOutNodeIds: ['002', '003', '005'], // 目前定义：允许绘制指向的集合就行。
+    allowOutNodeLinkLabel: { // 自定义目前连线上的字段
+      '002': '指向002的id说明',
+      '005': '指向005的id说明'
+    },
+    shape: 'custom-rect', // 渲染的形状
+    attrs: { // 样式属性，不重要
       body: {
         rx: 20, // 边框x半径弧度
         ry: 26 // 边框y半径弧度
       }
-    },
-    allowOutNodeIds: ['002', '005'] // 目前定义：允许绘制指向的集合就行。似乎不支持多层嵌套
+    }
   },
   {
     label: '矩形选择',

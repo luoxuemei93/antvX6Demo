@@ -5,10 +5,22 @@
       <div id="graph-container"></div>
     </div>
     <div>
-      <button @click="saveGraphJson()">保存json</button>
+      <button @click="initDemo()">初始化demo</button>
+      <button @click="showGraphJson()" >JSON查看</button>
+      <button @click="saveGraphJson()">导出json</button>
       <button @click="viewGraphJson()">预览</button>
+      <button @click="graphCenterFix()">居中自适应</button>
+      <ul style="text-align: left;">
+        <li>1.按下alt+鼠标左键移动，进行拖拽</li>
+        <li>2、框选多个，进行删除</li>
+        <li>3、ctrl+z，回退上一步</li>
+        <li>4、ctrl+shift+z，取消回退</li>
+        <li>5、ctrl+a，全选</li>
+        <li>6、backspace 或者 delete，删除选中</li>
+      </ul>
     </div>
     <viewGraph ref="viewGraphRef"></viewGraph>
+    <viewJSON ref="viewJSONRef"></viewJSON>
   </div>
 </template>
 
@@ -16,27 +28,28 @@
 import { Graph, Shape } from '@antv/x6'
 import { Stencil } from '@antv/x6-plugin-stencil'
 import { Transform } from '@antv/x6-plugin-transform'
-import { Selection } from '@antv/x6-plugin-selection'
 import { Snapline } from '@antv/x6-plugin-snapline'
+import { Selection } from '@antv/x6-plugin-selection'
+// import { Clipboard } from '@antv/x6-plugin-clipboard'
 import { Keyboard } from '@antv/x6-plugin-keyboard'
-import { Clipboard } from '@antv/x6-plugin-clipboard'
 import { History } from '@antv/x6-plugin-history'
 import { letfShape } from './letfShape.js'
-import { arrayDifference, downloadBlob } from './util.js'
+import demoJson from './demoJson.json'
+import { downloadBlob } from './util.js'
 import viewGraph from './viewGraph.vue'
+import viewJSON from './viewJSON.vue'
 const leftGroupName = 'group1'
 const shapeId = 'shapeId' // 对应数据中定义的行政id
 export default {
   name: 'Home',
   components: {
-    viewGraph
+    viewGraph,
+    viewJSON
   },
   data () {
     return {
       graph: null,
       stencil: null,
-      originViewNodeIdAry: [], // 当前画布上面的节点id
-      curOptNodeInfoId: null, // 当前操作的节点
       leftShapeNodeAry: [], // 左侧节点信息
       graphJson: {} // 当前画布导出的json
     }
@@ -47,15 +60,13 @@ export default {
       // #region 初始化画布
       this.graph = new Graph({
         container: document.getElementById('graph-container'),
-        grid: true,
-        // 画布放缩
-        mousewheel: {
+        grid: true, // 是否显示背景网格
+        panning: { // 画布拖动
           enabled: true,
-          zoomAtMousePosition: true,
           modifiers: 'ctrl',
-          minScale: 0.5,
-          maxScale: 3
+          eventTypes: ['leftMouseDown']
         },
+        mousewheel: true, // 画布放缩
         // 连线选项,配置 connecting 可以实现丰富的连线交互
         connecting: {
           router: 'manhattan', // 路径样式
@@ -66,7 +77,7 @@ export default {
               radius: 8
             }
           },
-          anchor: 'center', // 被连接的节点的锚点
+          // anchor: 'center', // 被连接的节点的锚点
           connectionPoint: 'anchor', // 指定连接点
           allowBlank: false,
           snap: {
@@ -74,6 +85,13 @@ export default {
           },
           createEdge () {
             return new Shape.Edge({
+              labels: [{
+                attrs: {
+                  label: {
+                    text: ''
+                  }
+                }
+              }],
               attrs: {
                 line: {
                   stroke: '#A2B1C3',
@@ -91,48 +109,17 @@ export default {
           validateEdge: (e) => {
             return this.validateEdgeFun(e)
           }
-        },
-        // 高亮选项
-        highlighting: {
-          magnetAdsorbed: {
-            name: 'stroke',
-            args: {
-              attrs: {
-                fill: '#5F95FF',
-                stroke: '#5F95FF'
-              }
-            }
-          }
         }
       })
-      // #endregion
-
       // #region 使用插件
       this.graph
-        .use(
-        // 调整节点大小和节点旋转角度
-          new Transform({
-            resizing: true,
-            rotating: true
-          })
-        )
-      // 框选
-        .use(
-          new Selection({
-            rubberband: true,
-            showNodeSelectionBox: true
-          })
-        )
+        .use(new Transform({ resizing: true, rotating: true }))// 调整节点大小和节点旋转角度
         .use(new Snapline())// 对齐线
-        .use(new Keyboard()) // 键盘事件，Ctrl + C 复制节点、Ctrl + V 粘贴节点
-        .use(new Clipboard()) // 使画布开启复制粘贴节点和边的能力
         .use(new History()) // 元素操作的撤销与重做
-      // #endregion
-      // #region 初始化侧边栏 stencil
-      this.initStencil()
-      // #endregion
+        .use(new Selection({ rubberband: true, showNodeSelectionBox: true }))// 框选。批量删除，左侧的图形恢复有bug，暂未处理
+        .use(new Keyboard()) // 键盘事件，Ctrl + C 复制节点、Ctrl + V 粘贴节点
 
-      // #endregion
+      this.initStencil()// #region 初始化侧边栏 stencil
       this.viewAction() // 画布事件监听，包括新增节点，删除节点，绘制线段等等
       this.mouseAction() // 画布鼠标事件
       this.graphAction()// 画布事件定义
@@ -350,30 +337,6 @@ export default {
     },
     // 画布快捷键与事件
     graphAction () {
-      // #region 快捷键与事件
-      this.graph.bindKey(['meta+c', 'ctrl+c'], () => {
-        const cells = this.graph.getSelectedCells()
-        if (cells.length) {
-          this.graph.copy(cells)
-        }
-        return false
-      })
-      this.graph.bindKey(['meta+x', 'ctrl+x'], () => {
-        const cells = this.graph.getSelectedCells()
-        if (cells.length) {
-          this.graph.cut(cells)
-        }
-        return false
-      })
-      this.graph.bindKey(['meta+v', 'ctrl+v'], () => {
-        if (!this.graph.isClipboardEmpty()) {
-          const cells = this.graph.paste({ offset: 32 })
-          this.graph.cleanSelection()
-          this.graph.select(cells)
-        }
-        return false
-      })
-
       // undo redo
       this.graph.bindKey(['meta+z', 'ctrl+z'], () => {
         if (this.graph.canUndo()) {
@@ -397,7 +360,7 @@ export default {
       })
 
       // delete
-      this.graph.bindKey('backspace', () => {
+      this.graph.bindKey(['backspace', 'delete'], () => {
         const cells = this.graph.getSelectedCells()
         if (cells.length) {
           this.graph.removeCells(cells)
@@ -446,6 +409,8 @@ export default {
         const allowOutNodeIds = sBusData.allowOutNodeIds
         // 判断目标节点的id，是否在源节点的allowOutNodeIds的列表中
         if (allowOutNodeIds.indexOf(eBusShapeId) > -1) {
+          // 拖动完成以后，给边添加标签文字
+          this.addLinkLabel(e.edge, sBusData, eBusShapeId)
           return true
         } else {
           alert(`当前${sBusData.name}节点不支持指向${eBusData.name}节点`)
@@ -457,26 +422,33 @@ export default {
         return false
       }
     },
+    addLinkLabel (edge, sBusData, eBusShapeId) {
+      const labelName = sBusData.allowOutNodeLinkLabel[eBusShapeId]
+      if (labelName) {
+        edge.appendLabel({
+          attrs: {
+            text: {
+              text: labelName || '-'
+            }
+          }
+        })
+      }
+    },
     // 画布事件,主要是获取到当前操作的节点id。然后对左侧的节点进行销毁或者重新加载
     viewAction () {
       // 节点被挂载到画布上时触发。
-      this.graph.on('view:mounted', ({ view }) => {
-        const newNodeId = this.getCellsIdAryFun()
-        this.curOptNodeInfoId = arrayDifference(newNodeId, this.originViewNodeIdAry)[0]// 比较2个数组得出当前操作的节点id
-        this.originViewNodeIdAry = newNodeId
-        this.stencilReload(0) // 左侧边栏重新渲染
+      this.graph.on('view:mounted', (e) => {
+        this.stencilReload(e, 0) // 左侧边栏重新渲染
       })
       // 节点从画布上卸载时触发。
-      this.graph.on('view:unmounted', ({ view }) => {
-        const newNodeId = this.getCellsIdAryFun()
-        this.curOptNodeInfoId = arrayDifference(this.originViewNodeIdAry, newNodeId)[0]// 比较2个数组得出当前操作的节点id
-        this.originViewNodeIdAry = newNodeId
-        this.stencilReload(1) // 左侧边栏重新渲染
+      this.graph.on('view:unmounted', (e) => {
+        this.stencilReload(e, 1) // 左侧边栏重新渲染
       })
     },
     // 画布新增以后，左侧边栏数据进行处理
-    stencilReload (type) { // type=0,卸载；type=1,装载
-      const optNode = this.getLeftShapeNode(this.curOptNodeInfoId)
+    stencilReload (e, type) { // type=0,卸载；type=1,装载
+      const curOptNodeInfoId = this.getNodebusData(e.view.cell)?.shapeId
+      const optNode = this.getLeftShapeNode(curOptNodeInfoId)
       if (type === 0) {
         this.stencil.unload(optNode, leftGroupName)
       } else if (type === 1) {
@@ -500,10 +472,22 @@ export default {
     viewGraphJson () {
       this.graphJson = this.graph.toJSON()
       this.$refs.viewGraphRef.showDialog(this.graphJson)
+    },
+    showGraphJson () {
+      this.graphJson = this.graph.toJSON()
+      this.$refs.viewJSONRef.showDialog(this.graphJson)
+    },
+    initDemo () {
+      this.graph.fromJSON(demoJson)
+    },
+    graphCenterFix () {
+      this.graph.zoomToFit({ maxScale: 1 })
+      this.graph.centerContent()
     }
   },
   mounted () {
     this.initGraph()
+    this.initDemo() // demo初始化
   }
 }
 </script>

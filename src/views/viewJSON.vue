@@ -1,8 +1,15 @@
 <!-- 预览 -->
 <template>
-<dialog id="graphView">
-  <div id="container-id">
-    <div id="graph-container-id"></div>
+<dialog id="graphJson">
+  <div id="container">
+    <vue-json-editor
+      class="json-editor"
+      v-model="graphJson"
+      :model="'code'"
+      :showBtns="false"
+    >
+
+    </vue-json-editor>
   </div>
   <div class="btm">
     <button @click="closeDialog()">关闭</button>
@@ -11,38 +18,30 @@
 </template>
 
 <script>
-import { Graph } from '@antv/x6'
+import vueJsonEditor from 'vue-json-editor'
 export default {
-  name: 'viewGraph',
+  name: 'viewJSON',
+  components: { vueJsonEditor },
   data () {
     return {
-      graph: null
+      graphJson: null
     }
   },
   mounted () {},
   methods: {
-    init (graphJson) {
-      this.graph = new Graph({
-        container: document.getElementById('graph-container-id'),
-        grid: false,
-        panning: true,
-        mousewheel: true// 画布放缩
-      })
-      this.graph.fromJSON(graphJson)
-    },
     showDialog (graphJson) {
-      document.getElementById('graphView').showModal()
-      this.init(graphJson)
+      document.getElementById('graphJson').showModal()
+      this.graphJson = graphJson
     },
     closeDialog () {
-      document.getElementById('graphView').close()
+      document.getElementById('graphJson').close()
     }
   }
 }
 </script>
 
 <style scoped>
- #graphView {
+ #graphJson {
   border-radius: 10px;
   border: 0;
   width: 60%;
@@ -50,15 +49,18 @@ export default {
   overflow: hidden;
   position: relative;
 }
-#container-id {
+#container {
   height: 450px;
   width: 100%;
   display: flex;
   border: 1px solid #dfe3e8;
 }
-#graph-container-id {
-  height: 100%;
+.json-editor {
   width: 100%;
+  height: 100%;
+}
+/deep/ .jsoneditor-vue {
+  height: 100%;
 }
 .btm {
   position: absolute;
